@@ -1,0 +1,109 @@
+<div class="page-shell">
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Snip home">
+      <span class="brand-mark">s</span>
+      <span>snip<span class="brand-period">.</span></span>
+    </a>
+    <div class="api-indicator" aria-label="API address">
+      <span class="status-dot"></span>
+      <span>API</span>
+      <code>localhost:3000</code>
+    </div>
+  </header>
+
+  <main class="content">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">LINK SHORTENER <span>/ 01</span></p>
+      <h1 id="page-title">Make a long link<br><span>feel smaller.</span></h1>
+      <p class="intro-copy">A clean shortcut to wherever you're going.</p>
+    </section>
+
+    <section class="composer" aria-label="Create a short link">
+      <form (ngSubmit)="shorten()">
+        <label for="destination">Destination URL</label>
+        <div class="input-row">
+          <input
+            id="destination"
+            name="url"
+            type="url"
+            autocomplete="url"
+            placeholder="https://example.com/a/very/long/address"
+            [ngModel]="urlInput()"
+            (ngModelChange)="urlInput.set($event)"
+            [disabled]="isSubmitting()"
+            required
+          >
+          <button type="submit" [disabled]="isSubmitting()">
+            {{ isSubmitting() ? 'Shortening...' : 'Shorten URL' }}
+          </button>
+        </div>
+      </form>
+
+      @if (errorMessage()) {
+        <p class="inline-message error-message" role="alert">{{ errorMessage() }}</p>
+      }
+
+      @if (newLink(); as link) {
+        <div class="result" aria-live="polite">
+          <div class="result-copy">
+            <span class="result-label">YOUR SHORT LINK</span>
+            <a [href]="link.shortUrl" target="_blank" rel="noreferrer">{{ link.shortUrl }}</a>
+          </div>
+          <button class="copy-button" type="button" (click)="copyShortUrl(link.shortUrl)">
+            {{ copied() ? 'Copied' : 'Copy link' }}
+          </button>
+        </div>
+      }
+    </section>
+
+    <section class="links-section" aria-labelledby="links-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">YOUR COLLECTION</p>
+          <h2 id="links-title">Shortened links</h2>
+        </div>
+        <button class="refresh-button" type="button" (click)="refreshLinks()" [disabled]="isLoading()">
+          {{ isLoading() ? 'Refreshing...' : 'Refresh list' }}
+        </button>
+      </div>
+
+      @if (listError()) {
+        <p class="inline-message error-message" role="alert">{{ listError() }}</p>
+      } @else if (isLoading()) {
+        <p class="list-state" role="status">Loading links...</p>
+      } @else if (links().length === 0) {
+        <p class="list-state">No links yet.</p>
+      } @else {
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">SHORT CODE</th>
+                <th scope="col">ORIGINAL URL</th>
+                <th scope="col" class="hits-heading">HITS</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (link of links(); track link.code) {
+                <tr>
+                  <td>
+                    <a class="code-link" [href]="link.shortUrl" target="_blank" rel="noreferrer">{{ link.code }}</a>
+                  </td>
+                  <td>
+                    <a class="source-link" [href]="link.url" target="_blank" rel="noreferrer">{{ link.url }}</a>
+                  </td>
+                  <td class="hits-cell">{{ link.hits }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>SNIP / URL INDEX</span>
+    <span>Small links. Clear direction.</span>
+  </footer>
+</div>
